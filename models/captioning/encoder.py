@@ -1,5 +1,5 @@
-"""
-Smart Story Teller - CLIP Encoder Wrapper (Adım 3)
+﻿"""
+Null Pointers - CLIP Encoder Wrapper (Adım 3)
 --------------------------------------------------
 CLIP ViT-B/32 modelini image feature extractor olarak kullanır.
 

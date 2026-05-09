@@ -1,5 +1,5 @@
-"""
-Smart Story Teller - ROUGE Score Değerlendirmesi (Adım 10)
+﻿"""
+Null Pointers - ROUGE Score Değerlendirmesi (Adım 10)
 ----------------------------------------------------------
 Fine-tune edilmiş GPT-2'yi ROUGE ve perplexity ile değerlendirir.
 

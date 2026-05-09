@@ -1,4 +1,4 @@
-# Smart Story Teller 📸✍️
+﻿# Null Pointers 📸✍️
 
 > Fotoğraftan Hikayeye: CLIP + LSTM + GPT-2 ile Uçtan Uca Yaratıcı Yazarlık Sistemi
 
@@ -134,7 +134,7 @@ python app/app.py
 ## 🗂️ Klasör Yapısı
 
 ```
-smart-story-teller/
+null-pointers/
 ├── data/                          # Ham ve işlenmiş veriler
 │   ├── coco_subset/               # MS-COCO 30K görüntü + caption
 │   └── writing_prompts/           # WritingPrompts 50K hikaye

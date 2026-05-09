@@ -1,5 +1,5 @@
-"""
-Smart Story Teller - COCO Dataset Preprocessing & DataLoader
+﻿"""
+Null Pointers - COCO Dataset Preprocessing & DataLoader
 ------------------------------------------------------------
 Bu modül MS-COCO veri setini PyTorch DataLoader formatına dönüştürür.
 

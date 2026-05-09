@@ -1,5 +1,5 @@
-"""
-Smart Story Teller - HuggingFace Hub Upload (Adım 12)
+﻿"""
+Null Pointers - HuggingFace Hub Upload (Adım 12)
 -----------------------------------------------------
 Eğitilmiş modelleri HuggingFace Hub'a yükler.
 
@@ -36,7 +36,7 @@ def upload_captioning_model(repo_name: str = None):
         return
 
     api = HfApi(token=HF_TOKEN)
-    repo_id = repo_name or f"{HF_USERNAME}/smart-story-teller-captioning"
+    repo_id = repo_name or f"{HF_USERNAME}/null-pointers-captioning"
 
     print(f"📤 Caption model yükleniyor: {repo_id}")
 
@@ -54,7 +54,7 @@ def upload_captioning_model(repo_name: str = None):
         folder_path=str(model_dir),
         repo_id=repo_id,
         repo_type="model",
-        commit_message="Upload Smart Story Teller captioning model",
+        commit_message="Upload Null Pointers captioning model",
     )
     print(f"✅ Caption model yüklendi: https://huggingface.co/{repo_id}")
     return repo_id
@@ -69,7 +69,7 @@ def upload_story_model(repo_name: str = None):
         return
 
     api = HfApi(token=HF_TOKEN)
-    repo_id = repo_name or f"{HF_USERNAME}/smart-story-teller-gpt2"
+    repo_id = repo_name or f"{HF_USERNAME}/null-pointers-gpt2"
 
     print(f"📤 Story model yükleniyor: {repo_id}")
     create_repo(repo_id, token=HF_TOKEN, exist_ok=True, private=False)
@@ -84,7 +84,7 @@ def upload_story_model(repo_name: str = None):
         folder_path=str(model_dir),
         repo_id=repo_id,
         repo_type="model",
-        commit_message="Upload Smart Story Teller GPT-2 story model",
+        commit_message="Upload Null Pointers GPT-2 story model",
     )
     print(f"✅ Story model yüklendi: https://huggingface.co/{repo_id}")
     return repo_id
@@ -105,7 +105,7 @@ tags:
 license: mit
 ---
 
-# Smart Story Teller - Image Captioning Model
+# Null Pointers - Image Captioning Model
 
 ## Description
 CLIP ViT-B/32 encoder + LSTM decoder ile MS-COCO üzerinde eğitilmiş image captioning modeli.
@@ -144,7 +144,7 @@ tags:
 license: mit
 ---
 
-# Smart Story Teller - GPT-2 Story Generator
+# Null Pointers - GPT-2 Story Generator
 
 ## Description
 GPT-2 Small (124M) ince ayarlı (fine-tuned) hikaye üretme modeli.
@@ -217,8 +217,8 @@ if __name__ == "__main__":
 
     if captioning_repo or story_repo:
         create_model_cards(
-            captioning_repo or f"{HF_USERNAME}/smart-story-teller-captioning",
-            story_repo or f"{HF_USERNAME}/smart-story-teller-gpt2",
+            captioning_repo or f"{HF_USERNAME}/null-pointers-captioning",
+            story_repo or f"{HF_USERNAME}/null-pointers-gpt2",
         )
 
     print("\n✅ Adım 12 tamamlandı!")

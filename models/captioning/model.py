@@ -1,5 +1,5 @@
-"""
-Smart Story Teller - Birleşik Encoder-Decoder Modeli (Adım 5)
+﻿"""
+Null Pointers - Birleşik Encoder-Decoder Modeli (Adım 5)
 ------------------------------------------------------------
 CLIP Encoder + LSTM Decoder'ı tek bir PyTorch modülünde birleştirir.
 

@@ -1,5 +1,5 @@
-# ============================================================
-# Smart Story Teller - WINDOWS DEPLOYMENT REQUIREMENTS
+﻿# ============================================================
+# Null Pointers - WINDOWS DEPLOYMENT REQUIREMENTS
 # Platform: Windows PC (CPU only, API-based inference)
 # Python: 3.11
 # Purpose: Gradio UI + HuggingFace API calls

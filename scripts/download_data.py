@@ -1,5 +1,5 @@
-"""
-Smart Story Teller - Data Download Script
+﻿"""
+Null Pointers - Data Download Script
 -----------------------------------------
 Bu script iki veri setini indirir:
 1. MS-COCO 2017 (validation set, ~5K görüntü + caption) - image captioning için
@@ -340,7 +340,7 @@ def verify_downloads():
 # ─── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    parser = argparse.ArgumentParser(description="Smart Story Teller - Veri İndirme Scripti")
+    parser = argparse.ArgumentParser(description="Null Pointers - Veri İndirme Scripti")
     parser.add_argument("--dataset", choices=["all", "coco", "writing_prompts"],
                         default="all", help="Hangi veri setini indireceksin?")
     parser.add_argument("--coco-train", action="store_true",
@@ -350,7 +350,7 @@ def main():
     args = parser.parse_args()
 
     print("="*50)
-    print("Smart Story Teller - Veri İndirme")
+    print("Null Pointers - Veri İndirme")
     print("="*50)
     print(f"Hedef klasörler:")
     print(f"  COCO: {COCO_DIR}")
