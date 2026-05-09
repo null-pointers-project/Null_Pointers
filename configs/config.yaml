@@ -1,0 +1,67 @@
+# ============================================================
+# Smart Story Teller - Hyperparameter Configuration
+# Bu dosyayı hem Mac (train) hem Windows (deploy) kullanır
+# ============================================================
+
+# --- Model Architecture ---
+model:
+  # Image Captioning
+  clip_model: "ViT-B/32"          # CLIP encoder variant
+  embed_dim: 512                   # CLIP output dimension (ViT-B/32 = 512)
+  lstm_hidden_dim: 512             # LSTM hidden state boyutu
+  lstm_num_layers: 2               # LSTM katman sayısı
+  lstm_dropout: 0.5                # Overfitting önleme
+  vocab_size: 10000                # Kelime hazinesi boyutu
+  max_caption_length: 50          # Maksimum caption token sayısı
+
+  # Story Generation
+  gpt2_model: "gpt2"              # gpt2 | gpt2-medium | gpt2-large
+  max_story_length: 300           # Maksimum üretilecek token sayısı
+  story_temperature: 0.85         # Yaratıcılık seviyesi (0.7-1.0 arası)
+  story_top_p: 0.92               # Nucleus sampling
+  story_top_k: 50                 # Top-k sampling
+
+# --- Training (Mac) ---
+training:
+  # Caption Model
+  caption_batch_size: 32          # M4 16GB için optimize
+  caption_epochs: 20
+  caption_lr: 0.0003              # Adam LR
+  caption_lr_scheduler: "cosine"  # cosine | step | none
+  caption_warmup_steps: 500
+  caption_weight_decay: 1e-4
+  caption_clip_grad_norm: 5.0     # Gradient clipping
+
+  # Story Model
+  story_batch_size: 8             # GPT-2 büyük modeller için küçük batch
+  story_epochs: 3                 # Fine-tune için az epoch yeterli
+  story_lr: 0.00005               # GPT-2 için küçük LR (catastrophic forgetting önleme)
+  story_warmup_ratio: 0.1
+  story_weight_decay: 0.01
+  gradient_accumulation_steps: 4  # Efektif batch = 8 * 4 = 32
+  gradient_checkpointing: true    # RAM tasarrufu için
+
+# --- Data ---
+data:
+  coco_subset_size: 30000         # MS-COCO'dan kaç örnek
+  writing_prompts_size: 50000     # WritingPrompts'tan kaç örnek
+  train_split: 0.85               # %85 train
+  val_split: 0.10                 # %10 validation
+  test_split: 0.05                # %5 test
+  num_workers: 4                  # DataLoader workers (Mac: 4)
+  pin_memory: false               # MPS için false bırak
+
+# --- Logging & Checkpointing ---
+logging:
+  log_every_n_steps: 50
+  save_every_n_epochs: 2
+  use_tensorboard: true
+  use_wandb: false                # İstersen true yapabilirsin
+  checkpoint_dir: "./checkpoints"
+
+# --- Deployment (Windows) ---
+deployment:
+  use_hf_api: true               # true: HF Inference API | false: local model
+  hf_api_timeout: 30             # saniye
+  gradio_port: 7860
+  gradio_share: false            # true: public link oluşturur

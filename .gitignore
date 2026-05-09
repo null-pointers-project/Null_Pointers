@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.env
+.venv/
+
+# Environment variables
+.env
+*.env
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Model weights & large files
+*.pt
+*.pth
+*.bin
+*.ckpt
+*.safetensors
+models/weights/
+models/checkpoints/
+
+# Data files
+data/raw/
+data/processed/
+*.csv
+*.json
+*.parquet
+*.h5
+*.hdf5
+
+# Logs
+logs/
+*.log
+runs/
+wandb/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cache
+.cache/
+*.cache
+huggingface/

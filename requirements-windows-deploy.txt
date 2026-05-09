@@ -1,0 +1,39 @@
+# ============================================================
+# Smart Story Teller - WINDOWS DEPLOYMENT REQUIREMENTS
+# Platform: Windows PC (CPU only, API-based inference)
+# Python: 3.11
+# Purpose: Gradio UI + HuggingFace API calls
+# ============================================================
+
+# --- HuggingFace Ecosystem (inference only) ---
+transformers==4.41.2
+huggingface-hub==0.23.4
+tokenizers==0.19.1
+
+# --- CLIP (sadece inference için) ---
+git+https://github.com/openai/CLIP.git
+
+# --- PyTorch (CPU only - Windows deployment) ---
+# GPU/MPS YOK - sadece CPU inference veya HF API kullanılacak
+torch==2.3.1
+torchvision==0.18.1
+
+# --- Gradio UI ---
+gradio==4.36.1
+
+# --- Image Processing ---
+Pillow==10.3.0
+
+# --- Data Handling ---
+numpy==1.26.4
+pandas==2.2.2
+
+# --- API & Web ---
+requests==2.32.2
+python-dotenv==1.0.1
+
+# --- Config ---
+pyyaml==6.0.1
+
+# --- Model Serialization ---
+safetensors==0.4.3
