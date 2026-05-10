@@ -1,5 +1,5 @@
 """
-Smart Story Teller - BLEU Score Değerlendirmesi (Adım 7)
+Null Pointers - BLEU Score Değerlendirmesi (Adım 7)
 -------------------------------------------------------
 Eğitilmiş captioning modelini MS-COCO test seti üzerinde değerlendirir.
 

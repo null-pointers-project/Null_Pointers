@@ -1,5 +1,5 @@
 """
-Smart Story Teller - Device & Environment Setup Checker
+Null Pointers - Device & Environment Setup Checker
 Run this script to verify your environment is correctly configured.
 Usage:
     - Mac (training): python scripts/check_environment.py --mode train
@@ -133,7 +133,7 @@ def print_system_info():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Smart Story Teller - Environment Checker")
+    parser = argparse.ArgumentParser(description="Null Pointers - Environment Checker")
     parser.add_argument("--mode", choices=["train", "deploy", "all"], default="all",
                         help="train: Mac training check | deploy: Windows UI check | all: everything")
     args = parser.parse_args()

@@ -1,5 +1,5 @@
 """
-Smart Story Teller - LSTM Decoder (Adım 4)
+Null Pointers - LSTM Decoder (Adım 4)
 ------------------------------------------
 CLIP encoder'dan gelen görüntü feature'larını alıp
 kelime kelime caption üreten LSTM tabanlı decoder.

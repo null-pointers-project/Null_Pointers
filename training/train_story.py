@@ -1,5 +1,5 @@
 """
-Smart Story Teller - GPT-2 Fine-tuning (Adım 8)
+Null Pointers - GPT-2 Fine-tuning (Adım 8)
 -----------------------------------------------
 GPT-2 Small'u WritingPrompts üzerinde fine-tune eder.
 
@@ -123,7 +123,7 @@ def setup_model(
 
 def train_story_model(args):
     print("="*60)
-    print("Smart Story Teller — GPT-2 Story Fine-tuning")
+    print("Null Pointers — GPT-2 Story Fine-tuning")
     print("="*60)
 
     # Config

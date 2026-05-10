@@ -1,5 +1,5 @@
 """
-Smart Story Teller - Image Captioning Eğitim Döngüsü (Adım 6)
+Null Pointers - Image Captioning Eğitim Döngüsü (Adım 6)
 ------------------------------------------------------------
 CLIP + LSTM modelini MS-COCO üzerinde eğitir.
 
@@ -309,7 +309,7 @@ class EarlyStopping:
 
 def train(args):
     print("="*60)
-    print("Smart Story Teller — Image Captioning Eğitimi")
+    print("Null Pointers — Image Captioning Eğitimi")
     print("="*60)
 
     # Config
@@ -457,7 +457,7 @@ def train(args):
 # ─── CLI ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Smart Story Teller — Caption Eğitimi")
+    parser = argparse.ArgumentParser(description="Null Pointers — Caption Eğitimi")
     parser.add_argument(
         "--config",
         default=str(ROOT_DIR / "configs" / "config.yaml"),

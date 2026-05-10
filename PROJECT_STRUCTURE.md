@@ -1,8 +1,8 @@
-# Smart Story Teller - Proje Bilgilendirmesi
+# Null Pointers - Proje Bilgilendirmesi
 
 ## Klasör Yapısı
 ```
-smart-story-teller/
+null-pointers/
 ├── data/
 │   ├── coco_subset/          # MS-COCO 30K görüntü (Mac'e indirilecek)
 │   └── writing_prompts/      # WritingPrompts 50K metin (Mac'e indirilecek)

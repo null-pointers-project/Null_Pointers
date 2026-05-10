@@ -1,5 +1,5 @@
 # ============================================================
-# Smart Story Teller - MAC M4 TRAINING REQUIREMENTS
+# Null Pointers - MAC M4 TRAINING REQUIREMENTS
 # Platform: Apple Silicon M4 (MPS backend)
 # Python: 3.11
 # Purpose: Model training on Mac Mini

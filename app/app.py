@@ -1,5 +1,5 @@
 """
-Smart Story Teller - Gradio Arayüzü (Adım 11)
+Null Pointers - Gradio Arayüzü (Adım 11)
 --------------------------------------------
 Kullanıcıdan fotoğraf alır → Caption üretir → Hikaye/Şiir üretir.
 
@@ -338,7 +338,7 @@ def create_ui() -> gr.Blocks:
     """
 
     with gr.Blocks(
-        title="Smart Story Teller 📸✍️",
+        title="Null Pointers 📸✍️",
         theme=gr.themes.Soft(
             primary_hue="violet",
             secondary_hue="purple",
@@ -353,7 +353,7 @@ def create_ui() -> gr.Blocks:
             <div style="text-align:center; padding: 10px 0 20px 0;">
                 <h1 style="font-size:2.5em; margin:0; background: linear-gradient(135deg, #7c3aed, #a78bfa);
                     -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                    📸 Smart Story Teller ✍️
+                    📸 Null Pointers ✍️
                 </h1>
                 <p style="color:#94a3b8; margin-top:8px; font-size:1.1em;">
                     Fotoğrafını yükle · Dünyayı keşfet · Hikayeni yaz
@@ -489,7 +489,7 @@ def create_ui() -> gr.Blocks:
         # ── Footer ─────────────────────────────────────────────────────────────
         gr.HTML("""
         <div style="text-align:center; color:#475569; font-size:0.85em; margin-top:20px; padding:10px;">
-            Smart Story Teller · Akademik Deep Learning + NLP Projesi<br>
+            Null Pointers · Akademik Deep Learning + NLP Projesi<br>
             CLIP ViT-B/32 + LSTM Decoder + GPT-2 Fine-tune
         </div>
         """)
@@ -530,7 +530,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     print("="*60)
-    print("Smart Story Teller — Gradio Arayüzü")
+    print("Null Pointers — Gradio Arayüzü")
     print("="*60)
     print(f"Local URL: http://localhost:{args.port}")
     if args.share:

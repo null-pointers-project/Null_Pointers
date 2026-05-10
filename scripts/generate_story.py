@@ -1,5 +1,5 @@
 """
-Smart Story Teller — Tam Pipeline
+Null Pointers — Tam Pipeline
 ----------------------------------
 Resim → CLIP+LSTM Caption → Llama 3.2 (Ollama) Hikaye
 
@@ -162,7 +162,7 @@ def process_image(image_path, caption_model, device, args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Smart Story Teller (Ollama)")
+    parser = argparse.ArgumentParser(description="Null Pointers (Ollama)")
     parser.add_argument("images", nargs="*", help="Resim dosyaları")
     parser.add_argument("--beam-size", type=int, default=5)
     parser.add_argument("--penalty",  type=float, default=1.3, help="Caption repetition penalty")

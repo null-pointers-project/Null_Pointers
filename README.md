@@ -1,4 +1,4 @@
-# Smart Story Teller 📸✍️
+# Null Pointers 📸✍️
 
 > Fotoğraftan Hikayeye: CLIP + LSTM + GPT-2 ile Uçtan Uca Yaratıcı Yazarlık Sistemi
 
@@ -18,7 +18,7 @@
 
 ```powershell
 # Proje klasörüne git
-cd C:\nullpointers\smart-story-teller
+cd C:\nullpointers\null-pointers
 
 # Sanal ortam oluştur
 python -m venv venv
@@ -46,7 +46,7 @@ python scripts/check_environment.py --mode deploy
 
 ```bash
 # Projeyi Mac'e kopyala (veya git clone)
-cd /Users/YourName/smart-story-teller
+cd /Users/YourName/null-pointers
 
 # Sanal ortam oluştur
 python3.11 -m venv venv
@@ -134,7 +134,7 @@ python app/app.py
 ## 🗂️ Klasör Yapısı
 
 ```
-smart-story-teller/
+null-pointers/
 ├── data/                          # Ham ve işlenmiş veriler
 │   ├── coco_subset/               # MS-COCO 30K görüntü + caption
 │   └── writing_prompts/           # WritingPrompts 50K hikaye

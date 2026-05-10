@@ -1,5 +1,5 @@
 """
-Smart Story Teller - Story Generation Inference (Adım 9)
+Null Pointers - Story Generation Inference (Adım 9)
 ---------------------------------------------------------
 Fine-tune edilmiş GPT-2 modeliyle hikaye ve şiir üretir.
 
