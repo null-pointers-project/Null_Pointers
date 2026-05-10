@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Model checkpoints (büyük dosyalar — Git LFS veya ayrı depolama kullan)
+checkpoints/
+
+# Veri setleri (GB'larca — ayrı indir)
+data/
+
+# Logs & TensorBoard
+runs/
+*.log
+
+# Environment secrets
+.env
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Temp / test görseller
+*.jpeg
+*.jpg
+*.png
+*.webp
+*.gif
+!assets/  
+
+# Jupyter
+.ipynb_checkpoints/
