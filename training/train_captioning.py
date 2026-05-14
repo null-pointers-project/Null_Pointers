@@ -236,6 +236,7 @@ def save_checkpoint(
     val_loss: float,
     checkpoint_dir: str,
     is_best: bool = False,
+    best_dir_name: str = "best_model",
 ):
     """Model checkpoint'ini kaydet."""
     Path(checkpoint_dir).mkdir(parents=True, exist_ok=True)
@@ -254,8 +255,8 @@ def save_checkpoint(
     # En iyi checkpoint
     if is_best:
         torch.save(state, Path(checkpoint_dir) / "best.pt")
-        model.save_pretrained(str(Path(checkpoint_dir) / "best_model"))
-        print(f"   🏆 Yeni best model kaydedildi! Val Loss: {val_loss:.4f}")
+        model.save_pretrained(str(Path(checkpoint_dir) / best_dir_name))
+        print(f"   🏆 Yeni best model kaydedildi → {best_dir_name}/  (Val Loss: {val_loss:.4f})")
 
 
 def load_checkpoint(
@@ -323,10 +324,24 @@ def train(args):
     device = get_device()
 
     # Paths
-    data_dir     = (ROOT_DIR / data_cfg["coco_data_dir"]).resolve()
-    subset_json  = data_dir / "coco_subset.json"
-    vocab_path   = data_dir / "vocabulary.json"
-    ckpt_dir     = (ROOT_DIR / log_cfg["checkpoint_dir"]).resolve() / "captioning"
+    data_dir    = (ROOT_DIR / data_cfg["coco_data_dir"]).resolve()
+    # --data argümanı verilmişse onu kullan, yoksa varsayılan
+    if hasattr(args, 'data') and args.data:
+        subset_json = data_dir / args.data
+    else:
+        subset_json = data_dir / "coco_subset.json"
+    vocab_path  = data_dir / "vocabulary.json"
+
+    # Fine-tuning mi yoksa sıfırdan mı?
+    is_finetune = hasattr(args, 'finetune') and args.finetune
+    ckpt_dir = (ROOT_DIR / log_cfg["checkpoint_dir"]).resolve() / "captioning"
+    save_dir = ckpt_dir / ("best_model_v2" if is_finetune else "best_model")
+
+    if is_finetune:
+        print("\n🔄 Fine-tuning modu aktif")
+        print(f"   Veri: {subset_json.name}")
+        print(f"   Mevcut model yüklenecek: {ckpt_dir / 'best_model'}")
+        print(f"   Kaydedilecek: {save_dir}")
 
     # Vocabulary
     vocab = build_or_load_vocabulary(
@@ -337,7 +352,6 @@ def train(args):
     actual_vocab_size = len(vocab)
     print(f"\n📚 Vocabulary boyutu: {actual_vocab_size}")
 
-    # Model
     model = ImageCaptioningModel(
         vocab_size=actual_vocab_size,
         embed_dim=model_cfg["embed_dim"],
@@ -348,11 +362,25 @@ def train(args):
     ).to(device)
     model.set_vocabulary(vocab)
 
+    # Fine-tuning: mevcut best_model ağırlıklarını yükle
+    if is_finetune:
+        ft_ckpt = ckpt_dir / "best_model"
+        if ft_ckpt.exists():
+            pretrained = ImageCaptioningModel.from_pretrained(str(ft_ckpt), device=str(device))
+            model.decoder.load_state_dict(pretrained.decoder.state_dict())
+            model.set_vocabulary(vocab)
+            print("   ✅ Mevcut decoder ağırlıkları yüklendi")
+        else:
+            print("   ⚠️  best_model bulunamadı, sıfırdan başlanıyor")
+
     # Loss & Optimizer
+    base_lr = float(train_cfg["caption_lr"])
+    # Fine-tuning'de LR 3x düşür — mevcut ağırlıkları koru
+    effective_lr = base_lr / 3 if is_finetune else base_lr
     criterion = CaptioningLoss(pad_idx=0, label_smoothing=0.1)
     optimizer = Adam(
         model.get_trainable_params(),
-        lr=float(train_cfg["caption_lr"]),
+        lr=effective_lr,
         weight_decay=float(train_cfg["caption_weight_decay"]),
     )
     scheduler = CosineAnnealingLR(
@@ -360,9 +388,10 @@ def train(args):
         T_max=train_cfg["caption_epochs"],
         eta_min=1e-6,
     )
+    if is_finetune:
+        print(f"   LR: {base_lr} → {effective_lr:.2e} (fine-tuning)")
 
     # DataLoaders
-    # CLIP preprocess'i encoder'dan al
     clip_preprocess = model.encoder.get_preprocess()
     train_loader, val_loader, test_loader = get_coco_loaders(
         data_dir=str(data_dir),
@@ -434,7 +463,8 @@ def train(args):
 
         if epoch % log_cfg["save_every_n_epochs"] == 0 or is_best:
             save_checkpoint(model, optimizer, epoch, val_loss,
-                            str(ckpt_dir), is_best=is_best)
+                            str(ckpt_dir), is_best=is_best,
+                            best_dir_name="best_model_v2" if is_finetune else "best_model")
 
         # Early stopping
         if early_stop(val_loss):
@@ -461,13 +491,21 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config",
         default=str(ROOT_DIR / "configs" / "config.yaml"),
-        help="Config dosyası yolu",
     )
     parser.add_argument(
         "--resume",
         default=None,
-        help="Checkpoint'ten devam et (örn: checkpoints/captioning/last.pt)",
+        help="Checkpoint'ten devam et (.pt dosyası)",
+    )
+    parser.add_argument(
+        "--finetune",
+        action="store_true",
+        help="Mevcut best_model'den fine-tune et (daha düşük LR, v2 kaydeder)",
+    )
+    parser.add_argument(
+        "--data",
+        default=None,
+        help="Kullanılacak subset JSON (örn: coco_train50k.json)",
     )
     args = parser.parse_args()
-
     train(args)

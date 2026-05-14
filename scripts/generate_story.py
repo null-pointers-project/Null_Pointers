@@ -61,11 +61,19 @@ STYLES = {
 
 # ─── Model Yükleme ────────────────────────────────────────────────────────────
 
-def load_caption_model(device):
-    ckpt = ROOT / "checkpoints" / "captioning" / "best_model"
+def load_caption_model(device, model_dir: str = None):
+    if model_dir:
+        ckpt = Path(model_dir)
+    else:
+        # v2 varsa onu, yoksa v1'i kullan
+        ckpt_v2 = ROOT / "checkpoints" / "captioning" / "best_model_v2"
+        ckpt_v1 = ROOT / "checkpoints" / "captioning" / "best_model"
+        ckpt = ckpt_v2 if ckpt_v2.exists() else ckpt_v1
+
     if not ckpt.exists():
-        print("❌ Caption modeli bulunamadı: checkpoints/captioning/best_model/")
+        print("❌ Caption modeli bulunamadı!")
         sys.exit(1)
+    print(f"📦 Caption modeli: {ckpt.name}")
     model = ImageCaptioningModel.from_pretrained(str(ckpt), device=device)
     return model.to(device).eval()
 
@@ -165,11 +173,12 @@ def main():
     parser = argparse.ArgumentParser(description="Null Pointers (Ollama)")
     parser.add_argument("images", nargs="*", help="Resim dosyaları")
     parser.add_argument("--beam-size", type=int, default=5)
-    parser.add_argument("--penalty",  type=float, default=1.3, help="Caption repetition penalty")
+    parser.add_argument("--penalty",  type=float, default=1.3)
     parser.add_argument("--model",    default="llama3.2", help="Ollama model adı")
-    parser.add_argument("--lang",     default="en", choices=["en", "tr"], help="Hikaye dili")
-    parser.add_argument("--style",    default="default",
-                        choices=list(STYLES.keys()), help="Hikaye tarzı")
+    parser.add_argument("--lang",     default="en", choices=["en", "tr"])
+    parser.add_argument("--style",    default="default", choices=list(STYLES.keys()))
+    parser.add_argument("--caption-model", default=None,
+                        help="Caption model klasörü (varsayılan: best_model_v2 varsa o, yoksa best_model)")
     parser.add_argument("--device",   default="auto", choices=["auto", "mps", "cpu"])
     args = parser.parse_args()
 
@@ -191,8 +200,7 @@ def main():
     print(f"✅ Ollama hazır: {args.model}")
 
     # Caption modeli yükle
-    print("📦 Caption modeli yükleniyor...")
-    caption_model = load_caption_model(device)
+    caption_model = load_caption_model(device, args.caption_model)
     print("✅ Hazır!\n")
 
     if args.images:

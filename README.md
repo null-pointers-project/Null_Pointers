@@ -1,185 +1,199 @@
 # Null Pointers 📸✍️
 
-> Fotoğraftan Hikayeye: CLIP + LSTM + GPT-2 ile Uçtan Uca Yaratıcı Yazarlık Sistemi
+> **Fotoğraftan Hikayeye** — CLIP + LSTM ile görsel açıklama üretimi ve Llama 3.2 ile yaratıcı hikaye yazarlığı.
 
-## Mimari Özet
+---
+
+## Mimari
 
 ```
-[Fotoğraf] → CLIP ViT-B/32 → LSTM Decoder → [Caption]
-                                                  ↓
-                                            GPT-2 Fine-tune → [Hikaye / Şiir]
+[Fotoğraf]
+    │
+    ▼
+CLIP ViT-B/32 (Encoder, frozen)
+    │  512-boyutlu görsel özellik vektörü
+    ▼
+LSTM Decoder (8.1M parametre, eğitildi)
+    │
+    ▼
+[Caption]  →  "a herd of elephants standing next to each other"
+    │
+    ▼
+Llama 3.2 — Ollama (lokal LLM)
+    │  EN üretir, isteğe bağlı TR çevirisi (Google Translate)
+    ▼
+[Hikaye]
 ```
 
 ---
 
-## 🖥️ Platform Kurulumu
+## Özellikler
 
-### 1. Windows PC (UI & Deployment)
-
-```powershell
-# Proje klasörüne git
-cd C:\nullpointers\null-pointers
-
-# Sanal ortam oluştur
-python -m venv venv
-
-# Aktive et
-.\venv\Scripts\Activate.ps1
-
-# Bağımlılıkları yükle
-pip install -r requirements-windows-deploy.txt
-
-# CLIP'i ayrıca yükle (git gerekli)
-pip install git+https://github.com/openai/CLIP.git
-
-# .env dosyasını oluştur
-copy .env.example .env
-# Not: .env içindeki değerleri doldurmayı unutma!
-
-# Ortamı doğrula
-python scripts/check_environment.py --mode deploy
-```
+- 🖼️ **Görsel Caption Üretimi** — CLIP + LSTM, MS-COCO üzerinde eğitildi (48K caption)
+- 📖 **Hikaye Üretimi** — Llama 3.2 (lokal, Ollama aracılığıyla), 5 farklı tarz
+- 🌍 **Türkçe Desteği** — Hikaye İngilizce üretilir, Google Translate ile çevrilir
+- 🎨 **Web Arayüzü** — Karanlık temalı Flask uygulaması, sürükle-bırak görsel yükleme
+- ⚡ **Gerçek Zamanlı Streaming** — Hikaye token token ekrana yazılır
 
 ---
 
-### 2. Mac M4 Mini (Model Eğitimi)
+## Kurulum
+
+### Gereksinimler
+
+- Python 3.11
+- [Ollama](https://ollama.com) kurulu ve çalışıyor olmalı
+- Apple Silicon (MPS) veya NVIDIA GPU (CUDA) — CPU ile de çalışır
+
+### Adımlar
 
 ```bash
-# Projeyi Mac'e kopyala (veya git clone)
-cd /Users/YourName/null-pointers
+# 1. Repoyu klonla
+git clone https://github.com/null-pointers-project/Null_Pointers.git
+cd Null_Pointers
 
-# Sanal ortam oluştur
+# 2. Sanal ortam oluştur ve aktive et
 python3.11 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Aktive et
-source venv/bin/activate
-
-# PyTorch MPS destekli yükle
-# NOT: pip ile yükle, conda ile değil (MPS uyumluluğu için)
-pip install --upgrade pip
-
-# Bağımlılıkları yükle
+# 3. Bağımlılıkları yükle
 pip install -r requirements-mac-training.txt
-
-# CLIP'i yükle
 pip install git+https://github.com/openai/CLIP.git
+pip install flask deep-translator
 
-# pycocotools (Mac'te sorun çıkarabilir, bu şekilde yükle)
-pip install pycocotools
-
-# .env dosyasını oluştur ve doldur
-cp .env.example .env
-
-# Ortamı doğrula
-python scripts/check_environment.py --mode train
-```
-
-#### 🔍 MPS Çalışıyor mu? (Mac'te test et)
-
-```bash
-python -c "
-import torch
-print('PyTorch:', torch.__version__)
-print('MPS Available:', torch.backends.mps.is_available())
-print('MPS Built:', torch.backends.mps.is_built())
-
-if torch.backends.mps.is_available():
-    device = torch.device('mps')
-    x = torch.ones(3, device=device)
-    print('MPS Test Tensor:', x)
-    print('✅ MPS aktif, eğitim GPU hızında çalışacak!')
-else:
-    print('⚠️ MPS bulunamadı, CPU kullanılacak.')
-"
+# 4. Llama 3.2 modelini indir (Ollama gerekli)
+ollama pull llama3.2
 ```
 
 ---
 
-## 🔄 İş Akışı
+## Kullanım
 
-### Faz 1: Mac'te Eğitim
+### Web Arayüzü (Önerilen)
+
 ```bash
-# 1. Veri indir (Adım 2)
-python scripts/download_data.py
+source venv/bin/activate
+python app/server.py
+# → http://localhost:5001 adresini aç
+```
 
-# 2. Caption modelini eğit (Adım 6)
+Aynı ağdaki diğer cihazlardan da erişilebilir: `http://<Mac-IP>:5001`
+
+### Komut Satırı — Sadece Caption
+
+```bash
+python scripts/test_caption.py resim.jpg --penalty 1.3
+# v2 modeli ile:
+python scripts/test_caption.py resim.jpg --checkpoint checkpoints/captioning/best_model_v2
+```
+
+### Komut Satırı — Caption + Hikaye
+
+```bash
+python scripts/generate_story.py resim.jpg
+python scripts/generate_story.py resim.jpg --style dramatic
+python scripts/generate_story.py resim.jpg --lang tr    # TR çevirisi
+python scripts/generate_story.py resim.jpg --style mystery --lang tr
+```
+
+Hikaye tarzları: `default`, `dramatic`, `humorous`, `mystery`, `children`
+
+---
+
+## Model Eğitimi
+
+### Caption Modeli — Sıfırdan Eğitim
+
+```bash
+# 1. Veri indir (MS-COCO val2017, ~1GB)
+python scripts/download_data.py --dataset coco
+
+# 2. Eğit
 python training/train_captioning.py
-
-# 3. GPT-2 fine-tune (Adım 8)
-python training/train_story.py
-
-# 4. Modeli HuggingFace'e yükle (Adım 12)
-python scripts/upload_to_hub.py
 ```
 
-### Faz 2: Windows'ta Çalıştır
-```powershell
-# Gradio uygulamasını başlat (Adım 11)
-python app/app.py
-# → http://localhost:7860 adresini aç
+### Caption Modeli — Fine-tuning (Daha Fazla Veri)
+
+```bash
+# 1. COCO train2017'den ek görsel indir
+python scripts/download_coco_train.py --size 50000
+
+# 2. Mevcut model üzerine fine-tune et
+python training/train_captioning.py --finetune --data coco_train50k.json
 ```
 
 ---
 
-## 📊 Değerlendirme Metrikleri
+## Model Sonuçları
 
-| Modül | Metrik | Hedef |
-|-------|--------|-------|
-| Image Captioning | BLEU-4 | ≥ 0.25 (MS-COCO baseline) |
-| Story Generation | ROUGE-L | ≥ 0.20 |
-| Story Generation | Perplexity | ≤ 30 |
+| Model | Veri | Val Loss | PPL |
+|-------|------|----------|-----|
+| best_model (v1) | 25K caption (COCO val) | 3.51 | 33.4 |
+| best_model_v2 | 48K caption (val+train) | **3.33** | **28.0** |
+
+**Örnek Çıktılar:**
+
+| Girdi | v1 | v2 |
+|-------|----|----|
+| 🚗 Araba | "a white and white photo of a" | "a white car parked in a parking lot" |
+| 🐘 Filler | "a group of elephants" | "a **herd** of elephants" |
 
 ---
 
-## 🗂️ Klasör Yapısı
+## Proje Yapısı
 
 ```
 null-pointers/
-├── data/                          # Ham ve işlenmiş veriler
-│   ├── coco_subset/               # MS-COCO 30K görüntü + caption
-│   └── writing_prompts/           # WritingPrompts 50K hikaye
-├── models/                        # Model mimarileri
-│   ├── captioning/
-│   │   ├── encoder.py             # CLIP ViT-B/32 wrapper
-│   │   ├── decoder.py             # LSTM decoder
-│   │   └── model.py               # Encoder-Decoder birleşik
-│   └── story/
-│       ├── train.py               # GPT-2 fine-tune
-│       └── generate.py            # Story inference
-├── training/
-│   ├── train_captioning.py        # Caption eğitim döngüsü
-│   └── train_story.py             # Story eğitim döngüsü
-├── evaluation/
-│   ├── bleu_score.py              # BLEU-4 hesaplama
-│   └── rouge_score.py             # ROUGE hesaplama
 ├── app/
-│   └── app.py                     # Gradio arayüzü
+│   ├── server.py              # Flask backend (caption + story + translate)
+│   └── templates/
+│       └── index.html         # Karanlık temalı web arayüzü
+├── models/
+│   └── captioning/
+│       ├── encoder.py         # CLIP ViT-B/32 wrapper
+│       ├── decoder.py         # LSTM decoder (beam search, repetition penalty)
+│       └── model.py           # Encoder-Decoder birleşik model
+├── training/
+│   └── train_captioning.py    # Eğitim döngüsü (--finetune desteği)
 ├── scripts/
-│   ├── check_environment.py       # Ortam doğrulama
-│   ├── download_data.py           # Veri indirme (Adım 2)
-│   └── upload_to_hub.py           # HF Hub upload (Adım 12)
-├── notebooks/
-│   └── demo.ipynb                 # Demo notebook
+│   ├── download_data.py       # MS-COCO veri indirme
+│   ├── download_coco_train.py # COCO train subset indirme
+│   ├── test_caption.py        # Caption test aracı
+│   ├── generate_story.py      # Komut satırı pipeline
+│   └── upload_to_hub.py       # HuggingFace Hub yükleme
+├── checkpoints/
+│   └── captioning/
+│       ├── best_model/        # v1 model
+│       └── best_model_v2/     # v2 model (fine-tuned)
 ├── configs/
-│   └── config.yaml                # Hyperparameter ayarları
-├── requirements-mac-training.txt
-├── requirements-windows-deploy.txt
-└── .env.example
+│   └── config.yaml
+└── data/
+    └── coco_subset/           # İndirilen görseller + JSON subset
 ```
 
 ---
 
-## 🛠️ Geliştirme Adımları
+## Donanım
 
-- [x] Adım 1: requirements.txt + ortam kurulumu
-- [ ] Adım 2: Veri indirme ve preprocessing
-- [ ] Adım 3: CLIP Encoder wrapper
-- [ ] Adım 4: LSTM Decoder mimarisi
-- [ ] Adım 5: Birleşik Encoder-Decoder modeli
-- [ ] Adım 6: Captioning eğitim döngüsü
-- [ ] Adım 7: BLEU değerlendirme
-- [ ] Adım 8: GPT-2 fine-tune
-- [ ] Adım 9: Story generation inference
-- [ ] Adım 10: ROUGE değerlendirme
-- [ ] Adım 11: Gradio arayüzü
-- [ ] Adım 12: HuggingFace Spaces deploy
+Proje **Apple M4 Mac Mini (16GB Unified Memory)** üzerinde geliştirildi.
+
+| Bileşen | VRAM/RAM |
+|---------|----------|
+| CLIP + LSTM | ~632 MB |
+| Llama 3.2 3B (Q4) | ~2.0 GB |
+| **Toplam** | **~2.6 GB** |
+
+Minimum: 3GB VRAM veya 8GB RAM (CPU modunda).
+
+---
+
+## HuggingFace
+
+Caption modeli HuggingFace'te yayınlanmıştır:  
+🤗 [nullpointersproject/null-pointers-caption](https://huggingface.co/nullpointersproject/null-pointers-caption)
+
+---
+
+## Takım
+
+**Null Pointers** — Okul projesi kapsamında geliştirilmiştir.

@@ -23,17 +23,18 @@ from PIL import Image
 from models.captioning.model import ImageCaptioningModel
 
 
-def load_model(device: torch.device) -> ImageCaptioningModel:
-    ckpt = ROOT / "checkpoints" / "captioning" / "best_model"
+def load_model(device: torch.device, ckpt_path: str = None) -> ImageCaptioningModel:
+    if ckpt_path:
+        ckpt = Path(ckpt_path)
+    else:
+        ckpt = ROOT / "checkpoints" / "captioning" / "best_model"
     if not ckpt.exists():
-        print("❌ Model bulunamadı: checkpoints/captioning/best_model/")
-        print("   Eğitim tamamlanmamış olabilir.")
+        print(f"❌ Model bulunamadı: {ckpt}")
         sys.exit(1)
 
-    print(f"✅ Model yükleniyor: {ckpt}")
+    print(f"✅ Model yükleniyor: {ckpt.name}")
     model = ImageCaptioningModel.from_pretrained(str(ckpt), device=device)
-    model = model.to(device).eval()
-    return model
+    return model.to(device).eval()
 
 
 def caption_image(model, image_path: str, beam_size: int, penalty: float, device):
@@ -67,6 +68,8 @@ def main():
     parser.add_argument("--beam-size", type=int, default=5)
     parser.add_argument("--penalty", type=float, default=1.3,
                         help="Repetition penalty (1.0=yok, 1.3=orta, 2.0=sert)")
+    parser.add_argument("--checkpoint", default=None,
+                        help="Model klasörü (varsayılan: best_model, v2 için: best_model_v2)")
     parser.add_argument("--device", default="auto", choices=["auto", "mps", "cpu"])
     args = parser.parse_args()
 
@@ -82,7 +85,7 @@ def main():
         device = torch.device(args.device)
         print(f"✅ Device: {args.device.upper()}")
 
-    model = load_model(device)
+    model = load_model(device, args.checkpoint)
     print(f"   Vocabulary: {model.decoder.vocab_size} kelime")
 
     if args.images:

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NullPointers — AI Story Teller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#07070f; --surface:#0e0e1c; --surface2:#141428;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.14);
+  --accent:#8b5cf6; --accent2:#6d28d9; --glow:rgba(139,92,246,0.18);
+  --text:#e2e8f0; --muted:#94a3b8; --dim:#475569;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh;
+  background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(139,92,246,0.12) 0%,transparent 70%); }
+header { display:flex; align-items:center; justify-content:space-between; padding:18px 36px;
+  border-bottom:1px solid var(--border); backdrop-filter:blur(12px);
+  position:sticky; top:0; z-index:100; background:rgba(7,7,15,0.85); }
+.logo { display:flex; align-items:center; gap:10px; }
+.logo-sym { width:34px; height:34px; background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border-radius:8px; display:flex; align-items:center; justify-content:center;
+  font-size:16px; font-weight:700; color:#fff; box-shadow:0 0 20px var(--glow); }
+.logo-name { font-size:18px; font-weight:700; letter-spacing:-0.3px; }
+.logo-name span { color:var(--accent); }
+.badge { font-size:11px; font-weight:500; padding:4px 10px; border-radius:20px;
+  background:var(--surface2); border:1px solid var(--border2); color:var(--muted); letter-spacing:0.5px; }
+main { padding:28px 36px; max-width:1300px; margin:0 auto; }
+.top-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+.panel { background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  overflow:hidden; transition:border-color .3s; }
+.panel:hover { border-color:var(--border2); }
+.panel-head { display:flex; align-items:center; gap:8px; padding:14px 20px;
+  border-bottom:1px solid var(--border); font-size:11px; font-weight:600;
+  letter-spacing:1.2px; color:var(--dim); text-transform:uppercase; }
+.dot { width:7px; height:7px; border-radius:50%; background:var(--dim); margin-left:auto;
+  transition:background .3s,box-shadow .3s; }
+.dot.active { background:#10b981; box-shadow:0 0 8px #10b98180; }
+.dot.loading { background:var(--accent); box-shadow:0 0 8px var(--glow); animation:pulse 1s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+#drop-zone { min-height:280px; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:14px; padding:30px; cursor:pointer; transition:background .2s; }
+#drop-zone.drag { background:rgba(139,92,246,0.06); }
+.drop-icon { width:56px; height:56px; border-radius:14px; background:var(--surface2);
+  border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; font-size:24px; }
+.drop-title { font-size:16px; font-weight:600; }
+.drop-sub { font-size:13px; color:var(--muted); }
+.browse-btn { padding:8px 22px; border-radius:8px; border:1px solid var(--border2);
+  background:var(--surface2); color:var(--text); font-size:13px; font-weight:500; cursor:pointer;
+  transition:border-color .2s,background .2s; }
+.browse-btn:hover { border-color:var(--accent); background:rgba(139,92,246,0.1); }
+#file-input { display:none; }
+#img-preview { width:100%; height:280px; object-fit:cover; display:none; }
+.img-bar { padding:10px 16px; font-size:12px; color:var(--muted);
+  border-top:1px solid var(--border); display:none; align-items:center; gap:6px; }
+.cap-body { padding:20px; display:flex; flex-direction:column; gap:16px; }
+.placeholder { color:var(--dim); font-size:13px; font-style:italic; text-align:center; padding:30px 0; }
+#caption-text { font-size:15px; line-height:1.7; min-height:40px; display:none; }
+.chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; display:none; }
+.chip { padding:4px 12px; border-radius:20px; font-size:12px; font-weight:500;
+  background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3); color:#c4b5fd; }
+.divider { height:1px; background:var(--border); margin:4px 0; }
+.controls { display:flex; flex-direction:column; gap:12px; }
+.ctrl-row { display:flex; align-items:center; gap:10px; }
+.ctrl-lbl { font-size:11px; font-weight:600; letter-spacing:0.8px; color:var(--dim);
+  text-transform:uppercase; min-width:48px; }
+select { flex:1; background:var(--surface2); border:1px solid var(--border2);
+  color:var(--text); padding:7px 12px; border-radius:8px; font-size:13px;
+  font-family:inherit; cursor:pointer; outline:none; transition:border-color .2s; }
+select:focus { border-color:var(--accent); }
+.lang-toggle { display:flex; border:1px solid var(--border2); border-radius:8px; overflow:hidden; }
+.lang-btn { padding:7px 18px; background:transparent; border:none; color:var(--muted);
+  font-size:13px; font-weight:500; cursor:pointer; transition:background .2s,color .2s; }
+.lang-btn.active { background:var(--accent); color:#fff; }
+#gen-btn { width:100%; padding:14px; background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none; border-radius:10px; color:#fff; font-size:15px; font-weight:600; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:opacity .2s,transform .1s,box-shadow .2s; box-shadow:0 4px 20px rgba(139,92,246,0.35); }
+#gen-btn:hover { opacity:.9; box-shadow:0 6px 28px rgba(139,92,246,0.5); }
+#gen-btn:active { transform:scale(.98); }
+#gen-btn:disabled { opacity:.5; cursor:not-allowed; }
+.story-actions { display:flex; gap:4px; margin-left:auto; }
+.icon-btn { width:30px; height:30px; border-radius:6px; border:1px solid var(--border);
+  background:transparent; color:var(--muted); cursor:pointer; font-size:15px;
+  display:flex; align-items:center; justify-content:center; transition:all .2s; }
+.icon-btn:hover { border-color:var(--border2); color:var(--text); background:var(--surface2); }
+.icon-btn.liked { color:#ec4899; border-color:#ec489940; }
+#story-content { padding:24px 28px; min-height:160px; font-size:15px; line-height:1.9; }
+#story-content.empty { display:flex; align-items:center; justify-content:center;
+  color:var(--dim); font-style:italic; font-size:14px; }
+#story-content p { margin-bottom:1em; }
+.cursor { display:inline-block; width:2px; height:1em; background:var(--accent);
+  margin-left:2px; vertical-align:text-bottom; animation:blink .8s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.skeleton { background:linear-gradient(90deg,var(--surface2) 25%,rgba(255,255,255,0.05) 50%,var(--surface2) 75%);
+  background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:6px; height:14px; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.toast { position:fixed; bottom:24px; right:24px; background:var(--surface2);
+  border:1px solid var(--border2); padding:12px 20px; border-radius:10px; font-size:13px;
+  transform:translateY(80px); opacity:0; transition:all .3s; z-index:999; }
+.toast.show { transform:translateY(0); opacity:1; }
+@media(max-width:768px) { main{padding:16px} .top-grid{grid-template-columns:1fr} header{padding:14px 20px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-sym">∅</div>
+    <div class="logo-name">Null<span>Pointers</span></div>
+  </div>
+  <span class="badge">AI STORY TELLER</span>
+</header>
+
+<main>
+  <div class="top-grid">
+
+    <div class="panel">
+      <div class="panel-head">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        Source Image
+        <div class="dot" id="img-dot"></div>
+      </div>
+      <div id="drop-zone">
+        <div class="drop-icon">☁</div>
+        <div class="drop-title">Drop Image Here</div>
+        <div class="drop-sub">or click to browse files</div>
+        <button class="browse-btn" onclick="document.getElementById('file-input').click()">Browse Files</button>
+        <input type="file" id="file-input" accept="image/*">
+      </div>
+      <img id="img-preview" alt="Preview">
+      <div class="img-bar" id="img-bar"><span>📸</span><span id="img-name">—</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Caption Analysis
+        <div class="dot" id="cap-dot"></div>
+      </div>
+      <div class="cap-body">
+        <div>
+          <div class="placeholder" id="cap-placeholder">Upload an image to generate caption...</div>
+          <div id="caption-text"></div>
+          <div class="chips" id="chips"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="controls">
+          <div class="ctrl-row">
+            <span class="ctrl-lbl">Style</span>
+            <select id="style-select">
+              <option value="default">✦ Default — Realistic</option>
+              <option value="dramatic">⚡ Dramatic</option>
+              <option value="humorous">😄 Humorous</option>
+              <option value="mystery">🌙 Mystery</option>
+              <option value="children">🌈 Children's Story</option>
+            </select>
+          </div>
+          <div class="ctrl-row">
+            <span class="ctrl-lbl">Lang</span>
+            <div class="lang-toggle">
+              <button class="lang-btn active" data-lang="en" onclick="setLang(this)">EN</button>
+              <button class="lang-btn" data-lang="tr" onclick="setLang(this)">TR</button>
+            </div>
+          </div>
+          <button id="gen-btn" onclick="generateStory()" disabled>
+            <span>✦</span> Generate Story
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      The AI Narrative
+      <div class="story-actions">
+        <button class="icon-btn" id="copy-btn" onclick="copyStory()" title="Copy">⎘</button>
+        <button class="icon-btn" id="like-btn" onclick="likeStory()" title="Like">♡</button>
+      </div>
+    </div>
+    <div id="story-content" class="empty">Your story will appear here...</div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentCaption = '';
+let currentLang = 'en';
+let storyText = '';
+
+// Drop & File
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) handleFile(f);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+function handleFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    dropZone.style.display = 'none';
+    const prev = document.getElementById('img-preview');
+    prev.src = e.target.result; prev.style.display = 'block';
+    document.getElementById('img-name').textContent = file.name;
+    document.getElementById('img-bar').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+  uploadCaption(file);
+}
+
+async function uploadCaption(file) {
+  setDot('img-dot', 'loading'); setDot('cap-dot', 'loading');
+  document.getElementById('cap-placeholder').style.display = 'none';
+  const ct = document.getElementById('caption-text');
+  ct.innerHTML = '<div class="skeleton" style="width:90%;margin-bottom:8px"></div><div class="skeleton" style="width:60%"></div>';
+  ct.style.display = 'block';
+  document.getElementById('chips').style.display = 'none';
+
+  const fd = new FormData(); fd.append('image', file);
+  try {
+    const res = await fetch('/api/caption', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    currentCaption = data.caption;
+
+    ct.textContent = currentCaption;
+    const stop = new Set(['a','an','the','of','in','on','at','to','is','are','and','or','with','next','each','other']);
+    const words = [...new Set(currentCaption.replace(/[.,!?]/g,'').split(' ').filter(w => w.length > 3 && !stop.has(w.toLowerCase())))];
+    const chips = document.getElementById('chips');
+    chips.innerHTML = words.slice(0,6).map(w => `<span class="chip">${w[0].toUpperCase()+w.slice(1)}</span>`).join('');
+    chips.style.display = 'flex';
+
+    setDot('img-dot', 'active'); setDot('cap-dot', 'active');
+    document.getElementById('gen-btn').disabled = false;
+  } catch(e) {
+    ct.innerHTML = '<span style="color:#ef4444">Hata: ' + e.message + '</span>';
+    setDot('img-dot', ''); setDot('cap-dot', '');
+  }
+}
+
+async function generateStory() {
+  if (!currentCaption) return;
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true; btn.innerHTML = '<span>⏳</span> Generating...';
+
+  const storyEl = document.getElementById('story-content');
+  storyEl.classList.remove('empty');
+  storyEl.innerHTML = '<span class="cursor"></span>';
+
+  let englishStory = '';
+  const style = document.getElementById('style-select').value;
+
+  try {
+    const res = await fetch('/api/story', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ caption: currentCaption, style })
+    });
+
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6);
+        if (raw === '[DONE]') break;
+        try {
+          const { token, error } = JSON.parse(raw);
+          if (error) throw new Error(error);
+          if (token) {
+            englishStory += token;
+            storyEl.innerHTML = render(englishStory) + '<span class="cursor"></span>';
+          }
+        } catch {}
+      }
+    }
+
+    // Stream tamamlandı
+    storyText = englishStory;
+    storyEl.innerHTML = render(englishStory);
+
+    if (currentLang === 'tr') {
+      await doTranslate(englishStory, storyEl);
+    }
+
+  } catch(e) {
+    storyEl.innerHTML = '<span style="color:#ef4444">Hata: ' + e.message + '</span>';
+  }
+
+  btn.disabled = false; btn.innerHTML = '<span>✦</span> Generate Story';
+}
+
+async function doTranslate(text, el) {
+  el.innerHTML = render(text) +
+    '<div style="margin-top:14px;padding:10px 14px;border-radius:8px;background:rgba(139,92,246,0.1);' +
+    'border:1px solid rgba(139,92,246,0.25);font-size:13px;color:#c4b5fd">🌍 Türkçeye çeviriliyor...</div>';
+  try {
+    const res = await fetch('/api/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    storyText = data.translated;
+    el.innerHTML = render(data.translated);
+    showToast('🇹🇷 Türkçeye çevrildi!');
+  } catch(e) {
+    storyText = text;
+    el.innerHTML = render(text) + '<p style="color:#f59e0b;font-size:12px;margin-top:10px">⚠️ Çeviri başarısız.</p>';
+  }
+}
+
+function render(text) {
+  if (!text) return '';
+  return text.trim().split(/\n+/).filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
+}
+
+function setLang(btn) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); currentLang = btn.dataset.lang;
+}
+
+function setDot(id, state) {
+  document.getElementById(id).className = 'dot' + (state ? ' ' + state : '');
+}
+
+function copyStory() {
+  if (!storyText) return;
+  navigator.clipboard.writeText(storyText).then(() => showToast('📋 Copied!'));
+}
+
+function likeStory() {
+  const b = document.getElementById('like-btn');
+  b.classList.toggle('liked'); b.textContent = b.classList.contains('liked') ? '♥' : '♡';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
